@@ -586,6 +586,15 @@
                 width: 90%;
                 padding: 15px;
             }
+            
+            #achievement-icon {
+                max-width: 80px !important;
+                max-height: 80px !important;
+            }
+            
+            #achievement-title {
+                font-size: 1.3rem;
+            }
         }
         
         @media (max-width: 360px) {
@@ -632,6 +641,24 @@
             .drink-btn {
                 padding: 6px 8px;
                 font-size: 0.85rem;
+            }
+            
+            #achievement-icon {
+                max-width: 60px !important;
+                max-height: 60px !important;
+            }
+            
+            #achievement-title {
+                font-size: 1.2rem;
+            }
+            
+            #achievement-description {
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 10px;
             }
         }
     </style>
@@ -791,7 +818,7 @@
             <div class="modal-content">
                 <span class="close-btn">&times;</span>
                 <div class="achievement-details">
-                    <img src="" alt="成就图标" id="achievement-icon">
+                    <img src="" alt="成就图标" id="achievement-icon" style="max-width: 100px; max-height: 100px; width: auto; height: auto;">
                     <h2 id="achievement-title">新成就解锁！</h2>
                     <p id="achievement-description"></p>
                 </div>
