@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>玮恩喝水打卡系统</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -151,6 +151,7 @@
             height: 200px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--card-border);
+            box-sizing: border-box;
         }
         
         .water-level {
@@ -219,6 +220,7 @@
             height: 200px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--card-border);
+            box-sizing: border-box;
         }
         
         .stat {
@@ -513,7 +515,9 @@
         /* 响应式设计 */
         @media (max-width: 768px) {
             .app-container {
-                padding: 15px;
+                padding: 15px 10px;
+                width: 100%;
+                max-width: 100%;
             }
             
             h1 {
@@ -523,6 +527,7 @@
             .header-content {
                 flex-direction: column;
                 gap: 15px;
+                width: 100%;
             }
             
             .water-stats {
@@ -530,6 +535,7 @@
                 min-height: 120px;
                 width: 100%;
                 flex-direction: row;
+                padding: 10px;
             }
             
             .water-bottle-container {
@@ -539,16 +545,93 @@
             
             .drink-buttons {
                 grid-template-columns: repeat(2, 1fr);
+                width: 100%;
+            }
+            
+            section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .hour-chart-container {
+                height: 200px;
             }
         }
         
         @media (max-width: 480px) {
             h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stat {
+                min-width: 60px;
+                padding: 3px;
+            }
+            
+            .stat span:first-child {
                 font-size: 1.6rem;
             }
             
             .drink-buttons {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .drink-btn {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .header-content {
+                gap: 10px;
+            }
+            
+            .water-bottle-container {
+                height: 160px;
+            }
+            
+            .water-bottle {
+                width: 80px;
+                height: 140px;
+            }
+            
+            .water-stats {
+                height: 160px;
+                padding: 8px 5px;
+            }
+            
+            .stat {
+                min-width: 50px;
+                padding: 2px;
+            }
+            
+            .stat span:first-child {
+                font-size: 1.4rem;
+            }
+            
+            .label {
+                font-size: 0.8rem;
+            }
+            
+            .drink-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            
+            .drink-btn {
+                padding: 6px 8px;
+                font-size: 0.85rem;
             }
         }
     </style>
