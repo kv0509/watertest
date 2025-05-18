@@ -275,24 +275,34 @@ function updateStreak() {
     }
     
     // 检查是否是第一次打卡
-    if (Object.keys(waterData.history).length === 1 && waterData.history[todayDate]) {
-        // 如果只有今天的记录，这是第一天
+    if (!waterData.streak || waterData.streak === 0) {
         waterData.streak = 1;
-        console.log('第一天打卡，连续天数设置为1');
+        console.log('第一次打卡，连续天数设置为1');
     } 
-    // 检查昨天是否有记录
-    else if (waterData.history[yesterday]) {
-        // 如果昨天有记录，但今天是第一次打卡
-        if (Object.keys(waterData.history[todayDate]).length === 0) {
-            waterData.streak = (waterData.streak || 0) + 1;
-            console.log(`昨天有记录，今天第一次打卡，连续天数增加到${waterData.streak}`);
+    // 如果已经有连续打卡记录，检查是否需要更新
+    else {
+        // 如果今天是第一次打卡，并且昨天有记录
+        if (Object.keys(waterData.history[todayDate]).length === 0 && waterData.history[yesterday]) {
+            // 检查昨天的记录是否有效（至少有一条记录）
+            let yesterdayHasRecords = false;
+            for (const hour in waterData.history[yesterday]) {
+                if (waterData.history[yesterday][hour].length > 0) {
+                    yesterdayHasRecords = true;
+                    break;
+                }
+            }
+            
+            if (yesterdayHasRecords) {
+                // 如果昨天有有效记录，增加连续天数
+                waterData.streak += 1;
+                console.log(`昨天有记录，今天第一次打卡，连续天数增加到${waterData.streak}`);
+            } else {
+                // 如果昨天没有有效记录，重置连续天数
+                waterData.streak = 1;
+                console.log('昨天没有有效记录，重置连续天数为1');
+            }
         }
-    } else {
-        // 如果昨天没有记录，但今天是第一次打卡
-        if (Object.keys(waterData.history[todayDate]).length === 0) {
-            waterData.streak = 1;
-            console.log('昨天没有记录，重置连续天数为1');
-        }
+        // 如果不是今天第一次打卡，保持连续天数不变
     }
     
     // 更新最佳天数
@@ -302,6 +312,47 @@ function updateStreak() {
             amount: getTodayTotal()
         };
     }
+}
+
+// 更新总喝水量统计
+function updateTotalStats() {
+    // 获取DOM元素
+    const totalAmountEl = document.getElementById('total-amount');
+    const totalDaysEl = document.getElementById('total-days');
+    const avgAmountEl = document.getElementById('avg-amount');
+    
+    if (!totalAmountEl || !totalDaysEl || !avgAmountEl) return;
+    
+    // 计算总喝水量
+    let totalAmount = 0;
+    let activeDays = 0;
+    
+    // 遍历所有历史记录
+    for (const date in waterData.history) {
+        let dayTotal = 0;
+        const dayData = waterData.history[date];
+        
+        // 计算每天的喝水量
+        for (const hour in dayData) {
+            dayData[hour].forEach(amount => {
+                dayTotal += amount;
+            });
+        }
+        
+        // 如果这一天有喝水记录，算作活跃天数
+        if (dayTotal > 0) {
+            activeDays++;
+            totalAmount += dayTotal;
+        }
+    }
+    
+    // 计算平均每日喝水量
+    const avgAmount = activeDays > 0 ? Math.round(totalAmount / activeDays) : 0;
+    
+    // 更新UI
+    totalAmountEl.textContent = totalAmount;
+    totalDaysEl.textContent = activeDays;
+    avgAmountEl.textContent = avgAmount;
 }
 
 // ----------------- UI更新 -----------------
@@ -353,6 +404,9 @@ function updateStats() {
     if (streakDaysEl) {
         streakDaysEl.textContent = waterData.streak || 0;
     }
+    
+    // 更新总喝水量统计
+    updateTotalStats();
 }
 
 // ----------------- 图表 -----------------
@@ -423,12 +477,35 @@ function renderWeeklyChart() {
     const days = [];
     const amounts = [];
     
-    // 获取过去7天的数据
-    for (let i = 6; i >= 0; i--) {
-        const date = luxon.DateTime.local().minus({days: i}).toFormat('yyyy-MM-dd');
-        const dayName = luxon.DateTime.local().minus({days: i}).toFormat('ccc');
+    // 获取历史数据
+    const dates = [];
+    const allDates = Object.keys(waterData.history).sort(); // 按日期排序
+    
+    // 如果有超过30天的数据，只显示最近30天
+    const maxDaysToShow = 30;
+    const startIdx = Math.max(0, allDates.length - maxDaysToShow);
+    
+    // 获取要显示的日期
+    for (let i = startIdx; i < allDates.length; i++) {
+        dates.push(allDates[i]);
+    }
+    
+    // 如果没有历史数据，显示过去7天
+    if (dates.length === 0) {
+        for (let i = 6; i >= 0; i--) {
+            const date = luxon.DateTime.local().minus({days: i}).toFormat('yyyy-MM-dd');
+            dates.push(date);
+        }
+    }
+    
+    // 处理每一天的数据
+    for (const date of dates) {
+        // 格式化日期显示
+        const dayObj = luxon.DateTime.fromFormat(date, 'yyyy-MM-dd');
+        const dayName = dayObj.toFormat('MM/dd');
         days.push(dayName);
         
+        // 计算该天的总饮水量
         let total = 0;
         if (waterData.history[date]) {
             Object.keys(waterData.history[date]).forEach(hour => {
@@ -447,7 +524,7 @@ function renderWeeklyChart() {
         data: {
             labels: days,
             datasets: [{
-                label: '每日饮水量 (ml)',
+                label: '饮水趋势 (ml)',
                 data: amounts,
                 backgroundColor: 'rgba(79, 195, 247, 0.2)',
                 borderColor: 'rgba(79, 195, 247, 1)',
@@ -465,6 +542,30 @@ function renderWeeklyChart() {
                     title: {
                         display: true,
                         text: '饮水量 (ml)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '日期 (MM/DD)'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: '历史饮水趋势'
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const idx = tooltipItems[0].dataIndex;
+                            return dates[idx];
+                        }
                     }
                 }
             }
