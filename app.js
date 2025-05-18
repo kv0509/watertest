@@ -170,23 +170,17 @@ function bindEvents() {
     }
     
     // 绑定所有喝水量按钮
-    const drinkButtons = document.querySelectorAll('.drink-btn');
-    drinkButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            // 防止自定义按钮触发添加水量
-            if (btn.textContent.includes('自定义')) {
-                showCustomAmountModal();
-            } else {
-                // 获取按钮上的数量
-                const text = btn.textContent.trim();
-                const match = text.match(/(\d+)ml/);
-                if (match && match[1]) {
-                    const amount = parseInt(match[1]);
-                    addWater(amount);
-                }
-            }
+    // 注意: 我们已经在HTML中使用onclick属性绑定了addWater函数
+    // 所以这里不需要再次绑定点击事件
+    // 只需要为自定义按钮绑定事件
+    const customButton = document.querySelector('.drink-btn:last-child');
+    if (customButton && customButton.textContent.includes('自定义')) {
+        // 移除现有的onclick属性以避免重复调用
+        customButton.removeAttribute('onclick');
+        customButton.addEventListener('click', (e) => {
+            showCustomAmountModal();
         });
-    });
+    }
     
     // 提醒关闭按钮
     const toastCloseBtn = document.querySelector('.toast-close');
@@ -231,6 +225,13 @@ function getHourTotal(hour) {
 function addWater(amount) {
     console.log(`添加饮水记录: ${amount}ml`);
     
+    // 确保amount是数字类型
+    amount = parseInt(amount);
+    if (isNaN(amount) || amount <= 0) {
+        console.error('无效的饮水量');
+        return;
+    }
+    
     // 确保数据结构存在
     if (!waterData.history[today]) {
         waterData.history[today] = {};
@@ -266,14 +267,31 @@ function addWater(amount) {
 // 更新连续打卡天数
 function updateStreak() {
     const yesterday = luxon.DateTime.local().minus({days: 1}).toFormat('yyyy-MM-dd');
+    const todayDate = luxon.DateTime.local().toFormat('yyyy-MM-dd');
     
+    // 如果今天还没有记录，则创建记录
+    if (!waterData.history[todayDate]) {
+        waterData.history[todayDate] = {};
+    }
+    
+    // 检查是否是第一次打卡
+    if (Object.keys(waterData.history).length === 1 && waterData.history[todayDate]) {
+        // 如果只有今天的记录，这是第一天
+        waterData.streak = 1;
+        console.log('第一天打卡，连续天数设置为1');
+    } 
     // 检查昨天是否有记录
-    if (waterData.history[yesterday]) {
-        waterData.streak = (waterData.streak || 0) + 1;
+    else if (waterData.history[yesterday]) {
+        // 如果昨天有记录，但今天是第一次打卡
+        if (Object.keys(waterData.history[todayDate]).length === 0) {
+            waterData.streak = (waterData.streak || 0) + 1;
+            console.log(`昨天有记录，今天第一次打卡，连续天数增加到${waterData.streak}`);
+        }
     } else {
-        // 如果今天是第一次记录，重置为1
-        if (!waterData.streak || waterData.streak === 0) {
+        // 如果昨天没有记录，但今天是第一次打卡
+        if (Object.keys(waterData.history[todayDate]).length === 0) {
             waterData.streak = 1;
+            console.log('昨天没有记录，重置连续天数为1');
         }
     }
     
