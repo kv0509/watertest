@@ -313,6 +313,43 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
+        /* 总喝水量统计 */
+        .total-water-card {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border);
+            box-sizing: border-box;
+        }
+        
+        .total-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            min-width: 80px;
+        }
+        
+        .total-value {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        
+        .total-stat span:first-child {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            line-height: 1.2;
+        }
+        
         /* 成就系统 */
         .achievements {
             display: grid;
@@ -746,6 +783,33 @@
                 <h2 class="section-title">成就系统</h2>
                 <div class="achievements" id="achievements-container">
                     <!-- 成就将通过JavaScript动态生成 -->
+                </div>
+            </section>
+            
+            <section class="total-water-section">
+                <h2 class="section-title">总喝水量统计</h2>
+                <div class="total-water-card">
+                    <div class="total-stat">
+                        <div class="total-value">
+                            <span id="total-amount">0</span>
+                            <span class="unit">ml</span>
+                        </div>
+                        <span class="label">历史总喝水量</span>
+                    </div>
+                    <div class="total-stat">
+                        <div class="total-value">
+                            <span id="total-days">0</span>
+                            <span class="unit">天</span>
+                        </div>
+                        <span class="label">总打卡天数</span>
+                    </div>
+                    <div class="total-stat">
+                        <div class="total-value">
+                            <span id="avg-amount">0</span>
+                            <span class="unit">ml</span>
+                        </div>
+                        <span class="label">平均每日喝水量</span>
+                    </div>
                 </div>
             </section>
             
